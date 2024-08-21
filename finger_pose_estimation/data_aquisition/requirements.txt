@@ -1,0 +1,12 @@
+pytest>=7.3.0
+numpy==1.21.2
+pandas
+pillow
+psychopy
+dill
+cffi
+opencv-python
+build
+pyedflib
+scikit-learn
+psychopy-sounddevice
