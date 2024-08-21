@@ -2,7 +2,6 @@ import datetime
 import os
 import cv2
 import threading
-import time
 
 
 class VideoRecorder:
