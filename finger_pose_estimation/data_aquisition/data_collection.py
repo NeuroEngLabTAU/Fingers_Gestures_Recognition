@@ -20,7 +20,7 @@ from Leap.resources.Windows import Leap as LeapController
 from streamer import Viz, EmgVisualizer, EMG, Data
 
 # for video recording
-from add_video import *
+from video_recorder import VideoRecorder
 import cv2
 import datetime
 # import threading
@@ -28,7 +28,7 @@ import sys
 
 
 class Experiment:
-    def __init__(self, num_repetitions=5, gesture_duration=5, rest_duration=5, gesture_directory=None, record=False):
+    def __init__(self, num_repetitions=5, gesture_duration=5, rest_duration=5, gesture_directory=None, record=False, video_flag=False, webcam=None):
 
         self.color_palette = {
             'background': (0.9, 0.9, 0.9),  # Light gray for background
@@ -43,6 +43,8 @@ class Experiment:
         self.current_gesture_index = 0
         self.gesture_directory = gesture_directory
         self.record = record
+        self.video_flag = video_flag
+        self.webcam = webcam
         self.exp_info = {}
         self.exp_num = 0
         self.quit_key = 'q'
@@ -123,9 +125,9 @@ class Experiment:
 
     def resize_and_crop(self, pil_image, target=4):
         screen_width, screen_height = 1200, 900
-        image_width, image_height = pil_image.size
-        image_aspect = image_width / image_height
-        screen_aspect = screen_width / screen_height
+        # image_width, image_height = pil_image.size
+        # image_aspect = image_width / image_height
+        # screen_aspect = screen_width / screen_height
         target_dim = ((screen_width//5)*target, (screen_height//5)*target)
 
         # if image_aspect > screen_aspect:
@@ -135,8 +137,8 @@ class Experiment:
         #     new_height = int(screen_width / image_aspect)
         #     pil_image = pil_image.resize((screen_width, new_height))
         pil_image = pil_image.resize(target_dim)
-        crop_x = (pil_image.width - screen_width) / 2
-        crop_y = (pil_image.height - screen_height) / 2
+        # crop_x = (pil_image.width - screen_width) / 2
+        # crop_y = (pil_image.height - screen_height) / 2
         # cropped_image = pil_image.crop((crop_x, crop_y, crop_x + screen_width, crop_y + screen_height))
         return pil_image
 
@@ -219,7 +221,7 @@ class Experiment:
                 # Update the countdown text
                 self.image_text.draw()
                 gesture_image.draw()
-                countdown_text = visual.TextStim(self.window, text=str(i), pos=(0, 0.45), color=self.color_palette['text'], height=0.05)
+                countdown_text = visual.TextStim(self.window, text=f"Perform gesture for {i} seconds", pos=(0, 0.45), color=self.color_palette['text'], height=0.05)
                 countdown_text.draw()
                 self.window.flip()
 
@@ -417,8 +419,20 @@ class Experiment:
             self.emg_data.save_as = str(Path(self.data_dir, f"fpe_pos{self.exp_info['position']}_{self.exp_info['Participant'].rjust(3, '0')}_S{self.exp_info['session']}_rep{self.exp_num}_BT.edf"))
             self.emg_data.leap_path = str(Path(self.data_dir, f"fpe_pos{self.exp_info['position']}_{self.exp_info['Participant'].rjust(3, '0')}_S{self.exp_info['session']}_rep{self.exp_num}_BT.csv"))
             self.leap_data.save_as = str(Path(self.data_dir, f"fpe_pos{self.exp_info['position']}_{self.exp_info['Participant'].rjust(3, '0')}_S{self.exp_info['session']}_rep{self.exp_num}_BT_full.csv"))
-            self.video_data_save_as = str(Path(self.data_dir, f"fpe_pos{self.exp_info['position']}_{self.exp_info['Participant'].rjust(3, '0')}_S{self.exp_info['session']}_rep{self.exp_num}_BT.avi"))
-            
+            # self.video_data_save_as = str(Path(self.data_dir, f"fpe_pos{self.exp_info['position']}_{self.exp_info['Participant'].rjust(3, '0')}_S{self.exp_info['session']}_rep{self.exp_num}_BT.avi"))
+
+            if self.video_flag:
+                saving_path = self.data_dir  # Define your saving path here
+
+                # Define the video writer object
+                fourcc = cv2.VideoWriter_fourcc(*"XVID")
+
+                # Create VideoRecorder instance
+                self.video_recorder = VideoRecorder(self.webcam, fourcc, saving_path)
+
+                # Start video recording
+                self.video_recorder.start_video()
+
             print(f"Saving data to: {self.emg_data.save_as}")
             
             self.emg_data.start()
@@ -475,15 +489,18 @@ class Experiment:
 
 
 def main(args):
-    # global video, one_video, is_recording_video
+    # if usage of video recording is desired:
+    # takes about 20 seconds to connect to the webcam at the beginning
+    video = False
+    # recording one video of the whole experiment
 
-    gesture_dir = './images'
+    gesture_dir = './check_images'
     save_dir = './data'
 
     # experiment setup
-    num_repetitions = 7
-    gesture_duration = 5
-    rest_duration = 3
+    num_repetitions = 2
+    gesture_duration = 2
+    rest_duration = 2
     record = True
 
     # Leap
@@ -493,6 +510,19 @@ def main(args):
     port = 20001
     timeout = 20
     verbose = False
+
+    cap = None  # initialize webcam object
+
+    if video:
+        print("connecting to webcam...")
+        cap = cv2.VideoCapture(1)
+        print("connected to webcam at: ", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3])
+
+        # Check if the webcam is opened successfully
+        if not cap.isOpened():
+            print("Failed to open webcam")
+            cap.release()  # Release the webcam resource
+            sys.exit()
 
     if record:
         controller = LeapController.Controller()
@@ -506,7 +536,8 @@ def main(args):
         leap_data = None
 
 
-    experiment = Experiment(num_repetitions, gesture_duration, rest_duration, gesture_directory=gesture_dir, record=record)
+    experiment = Experiment(num_repetitions, gesture_duration, rest_duration, gesture_directory=gesture_dir, record=record,
+                            video_flag=video, webcam=cap)
     
     if args.vis:
         experiment.pre_exp(emg_data=emg_data)
@@ -514,9 +545,9 @@ def main(args):
         experiment.run(emg_data=emg_data, leap_data=leap_data)
 
     print("experiment terminated")
-    if one_video and is_recording_video:  # if recording is still on, stop the video
+    if video:
         print("stopping video recording...")
-        stop_video(is_recording_video)
+        experiment.video_recorder.stop_video()
 
 
 if __name__ == "__main__":
@@ -524,31 +555,6 @@ if __name__ == "__main__":
     argparser.add_argument('--vis', action='store_true', help='Visualize data stream')
     argparser.add_argument('--desktop', action='store_true', help='Use desktop mode for leap motion')
     args = argparser.parse_args()
-    # if usage of video recording is desired:
-    # takes about 20 seconds to connect to the webcam at the beginning
-    one_video = False
-    # starts the first video recording with the EMG recording,
-    # also can set only one_video to True if only one video of the whole EMG recording is desired
-
-    if one_video:
-        print("connecting to webcam...")
-        cap = cv2.VideoCapture(1)
-        print("connected to webcam at: ", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3])
-        output_filename = ""
-
-        # Check if the webcam is opened successfully
-        if not cap.isOpened():
-            print("Failed to open webcam")
-
-            cap.release()  # Release the webcam resource
-            sys.exit()
-
-        # Define the video writer object
-        fourcc = cv2.VideoWriter_fourcc(*"XVID")
-        output_filename = ""
-        is_recording_video = threading.Event()
-
-        start_video(cap, is_recording_video, fourcc, output_filename)
 
     main(args)
     
