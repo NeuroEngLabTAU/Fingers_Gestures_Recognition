@@ -1,13 +1,13 @@
 from psychopy import visual, core, event, gui, data, sound
-from psychopy.hardware import keyboard
-from psychopy.constants import (NOT_STARTED, STARTED, PLAYING, PAUSED, STOPPED, FINISHED)
+# from psychopy.hardware import keyboard
+# from psychopy.constants import (NOT_STARTED, STARTED, PLAYING, PAUSED, STOPPED, FINISHED)
 import psychopy as ps
 import os
 from PIL import Image
 import random
 from pathlib import Path
 import argparse
-from threading import Thread
+# from threading import Thread
 from multiprocessing import Process
 import json
 # try:
@@ -23,7 +23,6 @@ from streamer import Viz, EmgVisualizer, EMG, Data
 from video_recorder import VideoRecorder
 import cv2
 import datetime
-# import threading
 import sys
 
 
@@ -105,11 +104,11 @@ class Experiment:
 
     def collect_participant_info(self):
         info_dialog = gui.Dlg(title='Participant Information')
-        info_dialog.addField('Participant ID:')
-        info_dialog.addField('Age:')
-        info_dialog.addField('Gender:', choices=['Male', 'Female'])
-        info_dialog.addField('Session:', choices=['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'])
-        info_dialog.addField('Position:', choices=['1', '2', '3', '4', '5'])
+        info_dialog.addText('Participant ID:'), info_dialog.addField('Participant ID:')
+        info_dialog.addText('Age:'), info_dialog.addField('Age:')
+        info_dialog.addText('Gender:'), info_dialog.addField('Gender:', choices=['Male', 'Female'])
+        info_dialog.addText('Session:'), info_dialog.addField('Session:', choices=['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'])
+        info_dialog.addText('Position:'), info_dialog.addField('Position:', choices=['1', '2', '3', '4', '5'])
         info_dialog.show()
         if info_dialog.OK:
             return {
@@ -491,7 +490,7 @@ class Experiment:
 def main(args):
     # if usage of video recording is desired:
     # takes about 20 seconds to connect to the webcam at the beginning
-    video = False
+    video = True
     # recording one video of the whole experiment
 
     gesture_dir = './check_images'
