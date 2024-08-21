@@ -1,1 +1,1 @@
-# Fingures_Gestures_Recognition
+# Fingers Gestures Recognition
