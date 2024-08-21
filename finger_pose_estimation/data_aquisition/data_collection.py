@@ -124,21 +124,8 @@ class Experiment:
 
     def resize_and_crop(self, pil_image, target=4):
         screen_width, screen_height = 1200, 900
-        # image_width, image_height = pil_image.size
-        # image_aspect = image_width / image_height
-        # screen_aspect = screen_width / screen_height
         target_dim = ((screen_width//5)*target, (screen_height//5)*target)
-
-        # if image_aspect > screen_aspect:
-        #     new_width = int(image_aspect * screen_height)
-        #     pil_image = pil_image.resize((new_width, screen_height))
-        # else:
-        #     new_height = int(screen_width / image_aspect)
-        #     pil_image = pil_image.resize((screen_width, new_height))
         pil_image = pil_image.resize(target_dim)
-        # crop_x = (pil_image.width - screen_width) / 2
-        # crop_y = (pil_image.height - screen_height) / 2
-        # cropped_image = pil_image.crop((crop_x, crop_y, crop_x + screen_width, crop_y + screen_height))
         return pil_image
 
     def load_gesture_images(self, gesture_directory):
@@ -197,8 +184,8 @@ class Experiment:
             core.wait(1)
 
         # play a sound to indicate the start of the gesture
-        tone = sound.Sound(value=400, secs=0.5, octave=4, stereo=True)
-        tone.setSound(secs=0.5, octave=4, value=1500)
+        tone = sound.Sound(value=1400, secs=0.5, octave=4, stereo=True, volume=0.5)
+        # tone.setSound(secs=0.5, octave=4, value=1500)
         tone.play()
 
 
@@ -227,8 +214,8 @@ class Experiment:
         self.trigger(f'end_{self.current_image}_{self.num_repetitions - self.num_completed[self.current_image]}')
 
         # play a sound to indicate the end of the gesture
-        tone = sound.Sound(value=400, secs=0.5, octave=4, stereo=True)
-        tone.setSound(secs=0.5, octave=4, value=1000)
+        tone = sound.Sound(value=800, secs=0.5, octave=4, stereo=True, volume=0.4)
+        # tone.setSound(secs=0.5, octave=4, value=1000)
         tone.play()
     
     def update_gesture(self):
@@ -418,7 +405,6 @@ class Experiment:
             self.emg_data.save_as = str(Path(self.data_dir, f"fpe_pos{self.exp_info['position']}_{self.exp_info['Participant'].rjust(3, '0')}_S{self.exp_info['session']}_rep{self.exp_num}_BT.edf"))
             self.emg_data.leap_path = str(Path(self.data_dir, f"fpe_pos{self.exp_info['position']}_{self.exp_info['Participant'].rjust(3, '0')}_S{self.exp_info['session']}_rep{self.exp_num}_BT.csv"))
             self.leap_data.save_as = str(Path(self.data_dir, f"fpe_pos{self.exp_info['position']}_{self.exp_info['Participant'].rjust(3, '0')}_S{self.exp_info['session']}_rep{self.exp_num}_BT_full.csv"))
-            # self.video_data_save_as = str(Path(self.data_dir, f"fpe_pos{self.exp_info['position']}_{self.exp_info['Participant'].rjust(3, '0')}_S{self.exp_info['session']}_rep{self.exp_num}_BT.avi"))
 
             if self.video_flag:
                 saving_path = self.data_dir  # Define your saving path here
@@ -490,16 +476,16 @@ class Experiment:
 def main(args):
     # if usage of video recording is desired:
     # takes about 20 seconds to connect to the webcam at the beginning
-    video = True
+    video = False
     # recording one video of the whole experiment
 
-    gesture_dir = './check_images'
+    gesture_dir = './images'
     save_dir = './data'
 
     # experiment setup
-    num_repetitions = 2
-    gesture_duration = 2
-    rest_duration = 2
+    num_repetitions = 7
+    gesture_duration = 5
+    rest_duration = 3
     record = True
 
     # Leap
