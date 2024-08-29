@@ -75,3 +75,26 @@ This project aims to create a model that accurately predicts hand gestures from 
 
 ## Results
 *Summarize the results of the model training and evaluation. Include any key findings, visualizations, or insights that demonstrate the effectiveness of the approach.*
+
+## Repository Structure
+   ```bash
+   hand-gesture-prediction/
+   │
+   ├── data/                # Raw and processed data files
+   ├── notebooks/           # Jupyter notebooks for exploration and analysis
+   ├── scripts/             # Python scripts for data collection, training, and evaluation
+   ├── models/              # Saved models
+   ├── results/             # Results of model evaluation and analysis
+   ├── requirements.txt     # Python package dependencies
+   └── README.md            # Project documentation
+
+*Provide additional details about the directory structure if necessary.*
+
+## Contributing
+*Guidelines for contributing to the project, including how to report issues and submit pull requests.*
+
+## License
+*Specify the license under which the project is distributed.*
+
+## Acknowledgements
+*Mention any funding sources, collaborators, or external resources that were instrumental in the completion of the project.*
