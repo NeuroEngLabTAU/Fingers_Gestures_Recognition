@@ -87,6 +87,7 @@ This project aims to create a model that accurately predicts hand gestures from 
    ├── results/             # Results of model evaluation and analysis
    ├── requirements.txt     # Python package dependencies
    └── README.md            # Project documentation
+```
 
 *Provide additional details about the directory structure if necessary.*
 
