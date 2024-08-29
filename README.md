@@ -1,5 +1,5 @@
 # Fingers Gestures Recognition
-# Hand Gesture Prediction using sEMG and Ultraleap Motion Controller 2
+## Hand Gesture Prediction using sEMG and Ultraleap Motion Controller 2
 
 This repository contains the implementation of a machine learning project aimed at predicting hand gestures based on surface electromyography (sEMG) signals using a 16-electrode array from Xtrodes Ltd. The Ultraleap Motion Controller 2 is used as the "ground truth" for finger gestures. The project includes scripts for data collection, model training, and evaluation.
 
@@ -41,3 +41,11 @@ This project aims to create a model that accurately predicts hand gestures from 
 1. Clone the repository:
    ```bash
    git clone https://github.com/yourusername/hand-gesture-prediction.git
+
+2. Navigate to the project directory:
+   ```bash
+   cd hand-gesture-prediction
+
+3. Install the required packages:
+   ```bash
+   pip install -r requirements.txt
