@@ -49,3 +49,29 @@ This project aims to create a model that accurately predicts hand gestures from 
 3. Install the required packages:
    ```bash
    pip install -r requirements.txt
+
+## Usage
+*Provide instructions on how to run the data collection scripts, train the model, and evaluate the results.*
+
+## Data Collection
+### Hardware Setup
+*Provide detailed instructions on setting up the Xtrodes Ltd sEMG electrodes and the Ultraleap Motion Controller 2, including connection details and positioning.*
+
+### Data Acquisition
+*Explain how to use the scripts to start data collection. Include details about the Bluetooth integration with the DAU and how to initiate simultaneous recording with the Leap Motion Controller 2.*
+
+### Data Synchronization
+*Describe how the data from the sEMG electrodes and the Leap Motion Controller 2 are synchronized, including any time-stamping or alignment techniques used.*
+
+## Model Training and Evaluation
+### Preprocessing
+*Explain the preprocessing steps applied to the raw sEMG data and the corresponding gesture data from the Leap Motion Controller 2. This might include filtering, normalization, feature extraction, etc.*
+
+### Model Training
+*Provide an overview of the machine learning models used (e.g., RandomForest, XGBoost) and how to train these models using the preprocessed data.*
+
+### Model Evaluation
+*Describe the evaluation metrics used to assess model performance (e.g., accuracy, F1 score) and provide examples of how to interpret the results.*
+
+## Results
+*Summarize the results of the model training and evaluation. Include any key findings, visualizations, or insights that demonstrate the effectiveness of the approach.*
