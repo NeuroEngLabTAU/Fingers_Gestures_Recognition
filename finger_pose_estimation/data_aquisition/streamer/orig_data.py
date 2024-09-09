@@ -1,4 +1,3 @@
-
 import os
 import ctypes
 import socket
@@ -6,13 +5,13 @@ import warnings
 import pyedflib
 import subprocess
 import numpy as np
+
 from typing import Union
 from threading import Thread
 from itertools import groupby
 from datetime import datetime, timedelta
 
-from .record import parse_byte_arr, \
-    EXPECTED_SAMPLES_PER_RECORD, PHYS_MAX_EXG, PHYS_MAX_ACC, PHYS_MAX_GYR, EXG_BITS, IMU_BITS
+from .record import parse_byte_arr, EXPECTED_SAMPLES_PER_RECORD
 
 
 class ConnectionTimeoutError(ConnectionRefusedError):
@@ -45,11 +44,11 @@ class Data(Thread):
 
         # Make sure `save_as` file path is valid
         if isinstance(save_as, str):
-            fp, ext = os.path.splitext(save_as)
+            file_name, ext = os.path.splitext(save_as)
             if ext.lower() not in Data.VALID_EXTENSIONS:
                 warnings.warn(f"Invalid extension {ext}. Saving as {Data.VALID_EXTENSIONS[0]} instead.")
-                fp = fp + Data.VALID_EXTENSIONS[0]
-            dir_ = os.path.dirname(fp)
+                file_name = file_name + Data.VALID_EXTENSIONS[0]
+            dir_ = os.path.dirname(file_name)
             os.makedirs(dir_, exist_ok=True) if dir_ else None
         elif save_as is None:
             pass
@@ -134,7 +133,7 @@ class Data(Thread):
             self.is_connected = False
             self.save_data()
             raise e
-        except socket.timeout as e:
+        except socket.timeout:
             self.is_connected = False
             self.save_data()
             raise socket.timeout(f"More than {self._timeout_secs} seconds have passed without receiving any data.")
@@ -190,7 +189,7 @@ class Data(Thread):
                          patientcode: str = '',
                          equipment: str = '',
                          admincode: str = '',
-                         gender: str = '',
+                         sex: str = '',
                          birthdate: Union[datetime, str] = ''):
 
         startdate = self.start_time
@@ -202,7 +201,8 @@ class Data(Thread):
             now = datetime.now()
             startdate = datetime(now.year, now.month, now.day, now.hour, now.minute, now.second)
             del now
-        if isinstance(birthdate, datetime): birthdate = birthdate.strftime('%d %b %Y')
+        if isinstance(birthdate, datetime):
+            birthdate = birthdate.strftime('%d %b %Y')
         local = {k: v for k, v in locals().items() if k != 'self'}
         header = {}
         for var in local:
@@ -213,6 +213,11 @@ class Data(Thread):
         return header
 
     def _preprocess_edf_signals(self):
+
+        physical_max = 12582.912
+        physical_min = -12582.912
+        digital_max = int(2 ** 15 - 1)
+        digital_min = int(-2 ** 15)
 
         # Add data to EDF-writer object
         channels = []
@@ -229,39 +234,17 @@ class Data(Thread):
 
                 labels = [f'Channel {nch}' for nch in range(n_channels)] if dataset == "EXG" else \
                          ["Acc X", "Acc Y", "Acc Z", "Gyro X", "Gyro Y", "Gyro Z"]
-
-                # If there are n_bits of data, then signed data can range from -2^n_bits/2 to 2^n_bits/2-1
-                # 2^n_bits/2 = 2^(n_bits-1)
-                n_bits = EXG_BITS if dataset == 'EXG' else IMU_BITS if dataset == 'IMU' else 0
-                digital_max = int(2 ** (n_bits-1) - 1)
-                digital_min = int(- 2 ** (n_bits-1))
-
                 for nch in range(n_channels):
-
                     label = labels[nch]
-                    if dataset == 'EXG':
-                        units = 'uV'
-                        physical_max = PHYS_MAX_EXG
-                    elif 'Acc' in label:
-                        units = 'g'
-                        physical_max = PHYS_MAX_ACC
-                    elif 'Gyro' in label:
-                        units = 'deg/sec'
-                        physical_max = PHYS_MAX_GYR
-                    else:
-                        raise ValueError("Unknown data type. Failed to save data.")
-
-                    physical_min = -physical_max
-
                     header = {
                         'label':  label,                # channel label (string, <= 16 characters, must be unique)
-                        'dimension':  units,            # physical dimension (e.g., mV) (string, <= 8 characters)
+                        'dimension':  'uV',             # physical dimension (e.g., mV) (string, <= 8 characters)
                         'sample_rate':  fs,             # sample frequency in hertz (int). Deprecated: use 'sample_frequency' instead.
                         'sample_frequency':  fs,        # number of samples per record (int)
                         'physical_max':  physical_max,  # maximum physical value (float)
                         'physical_min':  physical_min,  # minimum physical value (float)
-                        'digital_max':  digital_max,    # maximum digital value (int, -2**n_bits <= x < 2**n_bits)
-                        'digital_min':  digital_min,    # minimum digital value (int, -2**n_bits <= x < 2**n_bits)
+                        'digital_max':  digital_max,    # maximum digital value (int, -2**15 <= x < 2**15)
+                        'digital_min':  digital_min,    # minimum digital value (int, -2**15 <= x < 2**15)
                     }
                     headers.append(header)
 
@@ -270,9 +253,6 @@ class Data(Thread):
     def _write_edf(self):
         """
         Write an edf file using pyEDFlib
-
-        :param signal_headers: a list with one signal header for each signal (see function `make_signal_header)
-        :param is_digital: whether signals are presented digitally or in physical values
         """
 
         filepath = self.save_as
@@ -288,7 +268,6 @@ class Data(Thread):
         assert len(signal_headers) == len(signals), 'signals and signal_headers must be same length'
 
         n_channels = len(signals)
-
         with pyedflib.EdfWriter(filepath, n_channels=n_channels) as edf:
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=UserWarning)
@@ -298,19 +277,17 @@ class Data(Thread):
                 for time, dur, txt in self.annotations:
                     edf.writeAnnotation(time, dur, txt)
 
-        SUCCESS = os.path.isfile(filepath) and os.path.getsize(filepath) > min([len(sig) for sig in signals])
-        return SUCCESS
+        success = os.path.isfile(filepath) and os.path.getsize(filepath) > min([len(sig) for sig in signals])
+        return success
 
     def _insert_stray_packet(self, record):
 
         if record.record_type == "EXG":
             fs = self.fs_exg
             current_packet_idx, current_packet_len = self._current_packet_exg
-        elif record.record_type == "IMU":
+        else:
             fs = self.fs_imu
             current_packet_idx, current_packet_len = self._current_packet_imu
-        else:
-            return
 
         # Account for packet index reset after 2**16
         record_packet_idx = record.packet_idx
@@ -394,10 +371,10 @@ class Data(Thread):
 
             # Save time of first received record, regardless of type
             if self.start_time is None:
-                self.start_time = datetime.fromtimestamp(records[0].unix_time_secs) + \
+                self.start_time = datetime.utcfromtimestamp(records[0].unix_time_secs) + \
                                   timedelta(milliseconds=records[0].unix_time_ms)
 
-            if not self.has_data and (self.exg_data is not None and self.imu_data is not None):
+            if not self.has_data and (self.exg_data is not None or self.imu_data is not None):  # TODO: change or to and with IMU
                 self.has_data = True
                 print("Streaming EXG and IMU data...")
 
@@ -494,12 +471,19 @@ class Data(Thread):
                                  else self.imu_data.shape[0]/self.fs_imu if self.exg_data is None \
                                  else self.exg_data.shape[0]/self.fs_exg
             time = secs_since_start
+            # ms_since_start = secs_since_start - int(secs_since_start)
+            # secs_since_start = int(secs_since_start)
+            # time = self.start_time + timedelta(seconds=secs_since_start, milliseconds=ms_since_start)
         elif isinstance(time, (int, float)):
             assert time > 0, "Attempting to insert annotation before data collection began."
-        elif isinstance(time, datetime):
-            time = self.start_time if time < self.start_time else time
+            # ms_since_start = time - int(time)
+            # secs_since_start = int(time)
+            # time = self.start_time + timedelta(seconds=secs_since_start, milliseconds=ms_since_start)
+        elif isinstance(time, datetime) and time > self.start_time:
             dif = time - self.start_time
+            assert dif > timedelta(microseconds=0), "Attempting to insert annotation before data collection began."
             time = dif.seconds + dif.microseconds/1e6
+            # pass
         else:
             raise ValueError
 
