@@ -122,11 +122,42 @@ class Experiment:
             core.quit()
     
 
+    # def resize_and_crop(self, pil_image, target=4):
+    #     screen_width, screen_height = 1200, 1000
+    #     target_dim = ((screen_width//5)*target, (screen_height//5)*target)
+    #     pil_image = pil_image.resize(target_dim)
+    #     return pil_image
+
     def resize_and_crop(self, pil_image, target=4):
-        screen_width, screen_height = 1200, 900
-        target_dim = ((screen_width//5)*target, (screen_height//5)*target)
-        pil_image = pil_image.resize(target_dim)
+        # Base screen dimensions (for target=5 this would be a window of size 1200x900)
+        base_screen_width, base_screen_height = 1200, 900
+
+        # Scale the target dimensions
+        screen_width = (base_screen_width // 5) * target
+        screen_height = (base_screen_height // 5) * target
+
+        # Get the original image size
+        original_width, original_height = pil_image.size
+
+        # Calculate the aspect ratios
+        original_ratio = original_width / original_height
+        screen_ratio = screen_width / screen_height
+
+        # Determine the scaling factor based on aspect ratio to fit without distortion
+        if original_ratio > screen_ratio:
+            # Fit based on width
+            new_width = screen_width
+            new_height = int(screen_width / original_ratio)
+        else:
+            # Fit based on height
+            new_height = screen_height
+            new_width = int(screen_height * original_ratio)
+
+        # Resize the image
+        pil_image = pil_image.resize((new_width, new_height))
+
         return pil_image
+
 
     def load_gesture_images(self, gesture_directory):
         gesture_images = []
