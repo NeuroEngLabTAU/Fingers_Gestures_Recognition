@@ -13,7 +13,7 @@ from matplotlib.widgets import Button #for button in funcanimator
 
 import time
 
-from finger_pose_estimation.data_aquisition.streamer.data import Data, ConnectionTimeoutError
+from streamer import Data
 
 warnings.filterwarnings("ignore", category=sklearn.exceptions.ConvergenceWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
