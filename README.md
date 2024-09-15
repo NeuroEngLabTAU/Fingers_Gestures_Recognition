@@ -36,6 +36,7 @@ This project aims to create a model that accurately predicts hand gestures from 
 - Xtrodes Ltd sEMG electrode array (16 electrodes)
 - Ultraleap Motion Controller 2
 - Bluetooth-enabled data acquisition unit (DAU) compatible with Xtrodes Ltd electrodes
+- Correctly installed "Bluetooth Low Energy C# sample" Windows application
 
 ### Installation
 1. Clone the repository:
