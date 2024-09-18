@@ -59,32 +59,35 @@ The goal of this project is to create a reliable pipeline for collecting sEMG da
 
 ### Data Acquisition
 *Explain how to use the scripts to start data collection. Include details about the Bluetooth integration with the DAU and how to initiate simultaneous recording with the Leap Motion Controller 2.*
-- Open data_collection.py script. Verify the parameters (num_repetition, gesture_duration, rest_duration) are set as desired.
-  - num_repetition: Defines the number of times each gesture image will be shown. For example, setting it to 5, means each image will be shown 5 times throughout the experiment.
-  - gesture_duration: Duration (in seconds) for which the participant should perform the hand gesture. This determines how long each gesture image will be displayed.
-  - rest_duration: Duration (in seconds) for which the participant should relax their palm between gestures.
-- Ensure the correct gesture images are in the ‘images’ folder.
+1. Open `data_collection.py` in Python.
+2. Set the following parameters as desired:
+    - **num_repetition**: Defines the number of times each gesture image will be shown. For example, setting it to 5 means each image will be shown 5 times throughout the experiment.
+    - **gesture_duration**: Duration (in seconds) for which the participant should perform the hand gesture. This determines how long each gesture image will be displayed.
+    - **rest_duration**: Duration (in seconds) for which the participant should relax their palm between gestures.
+3. Ensure the correct gesture images are in the `images` folder.
+4. Position the hand-tracking camera properly according to the participant’s hand placement.
+5. Run the `data_collection.py` script.
+6. A window will appear prompting you to enter participant details such as serial number, age, sex, session number, and hand position. Once the information is submitted, the experiment will begin automatically.
 
-- The Bluetooth DAU will transmit the sEMG data to your machine, while the Leap Motion Controller will record hand gestures.
 
 ### Data Synchronization
 *Describe how the data from the sEMG electrodes and the Leap Motion Controller 2 are synchronized, including any time-stamping or alignment techniques used.*
-The EMG and visual data are collected by running two separate processes on the same computer during recording, to establish synchrony.
+- The sEMG data is captured by the Bluetooth DAU, while the Leap Motion Controller records hand gestures simultaneously.
+- The two streams of data (sEMG and hand-tracking) are collected in synchrony to ensure accurate alignment for subsequent analysis.
 
-### Saved Data Files
-- Data is saved in a folder labeled with the participant’s serial number. Each session is stored in a subfolder named S# (e.g., S1), with four subfolders for each hand position P# (P1, P2, P3, and P4). 
-  - If a participant completes multiple sessions, all data is saved in the corresponding session folder (e.g., S1, S2).
-  - The folder size for a single session is approximately 160 MB.
+### Data Files
+- After each session, data is saved in a folder named with the participant’s serial number, structured as follows:
+  - S#: Each session is stored in a subfolder (e.g., S1, S2).
+  - P#: Four subfolders are created for each hand position (P1, P2, P3, P4).
+  - The session folder typically occupies ~160 MB of storage.
+ 
+### File Formats
+- EDF file: Contains sEMG data. Named as /'fpe_pos{position}_{subject_number}_S{session_number}_rep0_BT'.
+- CSV file: Contains hand-tracking data from the Leap Motion Controller. Named as /'fpe_pos{position}_{subject_number}_S{session_number}_rep0_BT_full'.
+- log.txt: Includes metadata about the session.
 
-- Each of the hand-position folders (P#) contain the following files:
-  - EMG data is saved in an EDF file, named as follows:
-    “fpe_pos{position number}_{subject number}_S{session number}_rep0_BT”
-  - Hand-tracking data is saved in a CSV file, named:
-    “fpe_pos{position number}_{subject number}_S{session number}_rep0_BT_full”
-  - A log file, log.txt, contains metadata about the session.
-
-- Example data files are located in finger_pose_estimation/data_aquisition/dataset directory.
-
+### Example Data Location
+Example data can be found in the 'finger_pose_estimation/data_aquisition/dataset' directory.
 
 ## Repository Structure
    ```bash
@@ -92,7 +95,7 @@ The EMG and visual data are collected by running two separate processes on the s
    │
    ├── finger_pose_estimation/    # Python scripts for data collection
    ├── LeapSDK/                   # files for integrating Ultraleap camera with python
-   ├── leapc/                     # files for integrating Ultraleap camera with python
+   ├── leapc/                     # Additional files for Ultraleap integration
    ├── requirements.txt           # Python package dependencies
    └── README.md                  # Project documentation
 ```
