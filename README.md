@@ -82,8 +82,10 @@ The goal of this project is to create a reliable pipeline for collecting sEMG da
   - The session folder typically occupies ~160 MB of storage.
  
 ### File Formats
-- EDF file: Contains sEMG data. Named as /'fpe_pos{position}_{subject_number}_S{session_number}_rep0_BT'.
-- CSV file: Contains hand-tracking data from the Leap Motion Controller. Named as /'fpe_pos{position}_{subject_number}_S{session_number}_rep0_BT_full'.
+- EDF file: Contains sEMG data. Named as
+  `fpe_pos{position}_{subject_number}_S{session_number}_rep0_BT`.
+- CSV file: Contains hand-tracking data from the Leap Motion Controller. Named as
+  `fpe_pos{position}_{subject_number}_S{session_number}_rep0_BT_full`.
 - log.txt: Includes metadata about the session.
 
 ### Example Data Location
