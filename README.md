@@ -102,7 +102,7 @@ To enable this feature:
 3. Make sure a webcam is connected to your machine before running the script.
 
 The recorded video file will be saved in the same directory as the other recorded data (sEMG and hand-tracking) for the current hand position. The video will be named:
-`video_yyyy-mm-dd HH-MM-SS.mmm`
+`video_yyyy-mm-dd HH-MM-SS-mmm.avi`
 
 This ensures all recorded data, including the video, is stored together for easier synchronization and analysis.
 
