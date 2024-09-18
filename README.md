@@ -89,7 +89,7 @@ The goal of this project is to create a reliable pipeline for collecting sEMG da
 - log.txt: Includes metadata about the session.
 
 ### Example Data Location
-Example data can be found in the 'finger_pose_estimation/data_aquisition/dataset' directory.
+Example data can be found in the `finger_pose_estimation/data_aquisition/dataset` directory.
 
 ## Repository Structure
    ```bash
