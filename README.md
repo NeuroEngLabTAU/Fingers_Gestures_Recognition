@@ -29,6 +29,7 @@ The goal of this project is to create a reliable pipeline for collecting sEMG da
 - Python 3.8
 - Required Python packages (listed in `requirements.txt`)
 - Ultraleap Motion Controller 2
+- Ultraleap camera’s software “Ultraleap Hyperion".
 - Xtrodes Ltd sEMG electrode array (16 electrodes)
 - Xtrodes Ltd Bluetooth-enabled data acquisition unit (DAU)
 - Xtrodes Ltd custom "Bluetooth Low Energy C# sample" Windows application
@@ -91,6 +92,21 @@ The goal of this project is to create a reliable pipeline for collecting sEMG da
 ### Example Data Location
 Example data can be found in the `finger_pose_estimation/data_aquisition/dataset` directory.
 
+### Optional Webcam Recording
+
+This project also includes an option to record visual data using an additional webcam, in case you want to analyze visual data in a different way than the Ultraleap Motion Controller 2.
+
+To enable this feature:
+1. Open the `data_collection.py` script.
+2. Set `video = True` in the `main()` function to activate the webcam recording.
+3. Make sure a webcam is connected to your machine before running the script.
+
+The recorded video file will be saved in the same directory as the other recorded data (sEMG and hand-tracking) for the current hand position. The video will be named:
+`video_yyyy-mm-dd HH-MM-SS.mmm`
+
+This ensures all recorded data, including the video, is stored together for easier synchronization and analysis.
+
+
 ## Repository Structure
    ```bash
    Fingers_Gestures_Recognition/
@@ -112,3 +128,7 @@ Example data can be found in the `finger_pose_estimation/data_aquisition/dataset
 
 ## Acknowledgements
 *Mention any funding sources, collaborators, or external resources that were instrumental in the completion of the project.*
+
+## Further Reading
+For more in-depth information about the protocol, methodology, and detailed discussion of challenges, advantages, and potential applications of this project, refer to [PROTOCOL.md](PROTOCOL.md).
+
