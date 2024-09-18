@@ -130,5 +130,5 @@ This ensures all recorded data, including the video, is stored together for easi
 *Mention any funding sources, collaborators, or external resources that were instrumental in the completion of the project.*
 
 ## Further Reading
-For more in-depth information about the protocol, methodology, and detailed discussion of challenges, advantages, and potential applications of this project, refer to [PROTOCOL.md](PROTOCOL.md).
+For more in-depth information about the protocol, methodology, and detailed discussion of challenges, advantages, and potential applications of this project, refer to [DISCUSSION.md](DISCUSSION.md).
 
