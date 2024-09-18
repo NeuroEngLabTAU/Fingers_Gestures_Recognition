@@ -79,24 +79,22 @@ The EMG and visual data are collected by running two separate processes on the s
 - Each of the hand-position folders (P#) contain the following files:
   - EMG data is saved in an EDF file, named as follows:
     “fpe_pos{position number}_{subject number}_S{session number}_rep0_BT”
-- Hand-tracking data is saved in a CSV file, named:
+  - Hand-tracking data is saved in a CSV file, named:
     “fpe_pos{position number}_{subject number}_S{session number}_rep0_BT_full”
-- A log file, log.txt, contains metadata about the session.
+  - A log file, log.txt, contains metadata about the session.
 
-- example data files are located in data_acquisition/dataset directory.
+- Example data files are located in finger_pose_estimation/data_aquisition/dataset directory.
 
 
 ## Repository Structure
    ```bash
-   hand-gesture-prediction/
+   Fingers_Gestures_Recognition/
    │
-   ├── data/                # Raw and processed data files
-   ├── notebooks/           # Jupyter notebooks for exploration and analysis
-   ├── scripts/             # Python scripts for data collection, training, and evaluation
-   ├── models/              # Saved models
-   ├── results/             # Results of model evaluation and analysis
-   ├── requirements.txt     # Python package dependencies
-   └── README.md            # Project documentation
+   ├── finger_pose_estimation/    # Python scripts for data collection
+   ├── LeapSDK/                   # files for integrating Ultraleap camera with python
+   ├── leapc/                     # files for integrating Ultraleap camera with python
+   ├── requirements.txt           # Python package dependencies
+   └── README.md                  # Project documentation
 ```
 
 *Provide additional details about the directory structure if necessary.*
