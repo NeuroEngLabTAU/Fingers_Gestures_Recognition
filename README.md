@@ -26,7 +26,7 @@ The goal of this project is to create a reliable pipeline for collecting sEMG da
 ## Getting Started
 
 ### Prerequisites
-- Python 3.8
+- Python 3.9
 - Required Python packages (listed in `requirements.txt`)
 - Ultraleap Motion Controller 2
 - Ultraleap camera’s software “Ultraleap Hyperion".
