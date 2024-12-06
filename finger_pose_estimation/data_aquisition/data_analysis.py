@@ -6,6 +6,10 @@ import mne
 import pickle
 from sklearn.preprocessing import LabelEncoder
 
+import numpy as np
+import pandas as pd
+
+
 def build_emg_columns(df: pd.DataFrame):
     return [col for col in df.columns if 'channel' in col.lower()]
 
@@ -105,7 +109,7 @@ def merge_data(emg_data, leap_data):
 
     return data
 
-def process_data(emg_path, leap_path, save_path, sampling_rate=500):
+def process_data(emg_path, leap_path, save_path,seq_len,stride, sampling_rate=500):
     """Main processing pipeline"""
     results = {}
     # Read data
@@ -195,27 +199,82 @@ def process_data(emg_path, leap_path, save_path, sampling_rate=500):
     # data = discritise_data(data)
     print(type(data))
     results['data'] = data#.values
-
+    data = segment_and_reshape_data(results,int(seq_len*(sampling_rate/1000.)),int(stride*(sampling_rate/1000.)))
     # Validate
     with open(save_path, 'wb') as f:
         pickle.dump(results, f)
     
     return results
 
+
+def segment_and_reshape_data(data,seq_len,stride):
+                    # load datase    
+    data['data'] = discritise_data(data['data'], seq_len=seq_len, stride=stride)
+    data['emg_data'] = data['data'][:,:,0:len(data['emg_channels'])]
+    data['leap_data'] = data['data'][:,:,len(data['emg_channels']):len(data['emg_channels'])+len(data['leap_channels'])]
+    data['gesture_class'] = data['data'][:,:,-3]
+    data['gesture_id'] = data['data'][:,:,-2]
+    data['time_step'] = data['data'][:,:,-1]
+    # Reshape EMG data into 4x4 grid layout based on electrode positions
+    new_order = np.array([
+        3, 6, 11, 14,  # First row of the new matrix
+        2, 5, 12, 15,  # Second row of the new matrix
+        1, 4, 13, 16,  # Third row of the new matrix
+        8, 7, 10, 9  # Fourth row of the new matrix
+    ]) - 1  # Convert to zero-based index
+
+    # Reshape EMG data to (samples, seq_len, 4, 4)
+    data['emg_data'] = data['emg_data'][:,:,new_order].reshape(data['emg_data'].shape[0], data['emg_data'].shape[1], 4, 4)
+    del data['data']
+    return data
+def strided_array(arr, window_size, stride):
+    N, C = arr.shape    
+    shape = ((N - window_size)//stride + 1, window_size, C)
+    strides = (stride*arr.strides[0], arr.strides[0], arr.strides[1])
+    return np.lib.stride_tricks.as_strided(arr, shape=shape, strides=strides)
+
+def discritise_data(self, data, seq_len=150, stride=5):
+    data = pd.DataFrame(data)
+    grouped = data.groupby(data.columns[-1], sort=False)  # Update: Disable sorting by column
+
+    # Initialize an empty list to store the strided arrays
+    strided_arrays = []
+
+    # Iterate over the groups
+    for _, group in grouped:
+        # Convert the group to a numpy array
+        array = np.array(group)
+        # Generate the strided array and append it to the list
+        # assert the shape of the array is greater than the sequence length
+        if array.shape[0] > seq_len:
+            strided_arrays.append(strided_array(array, seq_len, stride))
+        else:
+            print(f'Skipping {group.iloc[0][data.columns[-1]]}, not enough data')
+
+    # Concatenate the strided arrays into a single array and return it
+    return np.concatenate(strided_arrays, axis=0)
+
 if __name__ == "__main__":
     import argparse
-    
-    parser = argparse.ArgumentParser(description="Process EMG data")
-    parser.add_argument('--emg_path', type=str, required=True, help='Path to EMG file')
-    parser.add_argument('--leap_path', type=str, required=True, help='Path to LEAP motion file')
-    parser.add_argument('--save_path', type=str, required=True, help='Path to save processed data')
-    parser.add_argument('--sampling_rate', type=int, default=500, help='Sampling rate in Hz (default: 500)')
+    # Get input from user
+    print("Please enter the following information:")
+    emg_path = input("Path to EMG file: ")
+    hand_kinematic_data = input("Path to Hand Kinematic data file: ")
+    save_path = input("Path to save processed data: ")
+    sampling_rate = input("Sampling rate in Hz (default: 500): ") or "500"
+    seq_len = input("Sequence length in ms (default: 500): ") or "500"
+    stride = input("Stride in ms (default: 2): ") or "2"
+    # Convert sampling rate to integer
+    sampling_rate = int(sampling_rate)
+    seq_len = max(2,int(seq_len))
+    stride = max(2,int(stride))
 
-    args = parser.parse_args()
+    # Process the data
     process_data(
-        args.emg_path, 
-        args.leap_path, 
-        args.save_path, 
-        args.sampling_rate,
-
+        emg_path,
+        hand_kinematic_data, 
+        save_path,
+        seq_len,
+        stride,
+        sampling_rate
     )
