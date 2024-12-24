@@ -10,6 +10,11 @@ import argparse
 # from threading import Thread
 from multiprocessing import Process
 import json
+
+import sys
+# Add the parent directory of the current working directory to the Python path
+sys.path.append(os.path.abspath(os.path.join(os.getcwd(), '..')))
+
 # try:
 from Leap import LeapRecorder, LeapVisuzalizer
 from Leap import NeuroLeap as nl
@@ -23,7 +28,6 @@ from streamer import Viz, EmgVisualizer, EMG, Data
 from video_recorder import VideoRecorder
 import cv2
 import datetime
-import sys
 
 
 class Experiment:
