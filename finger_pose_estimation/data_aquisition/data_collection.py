@@ -108,11 +108,11 @@ class Experiment:
 
     def collect_participant_info(self):
         info_dialog = gui.Dlg(title='Participant Information')
-        info_dialog.addText('Participant ID:'), info_dialog.addField('Participant ID:')
-        info_dialog.addText('Age:'), info_dialog.addField('Age:')
-        info_dialog.addText('Gender:'), info_dialog.addField('Gender:', choices=['Male', 'Female'])
-        info_dialog.addText('Session:'), info_dialog.addField('Session:', choices=['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'])
-        info_dialog.addText('Position:'), info_dialog.addField('Position:', choices=['1', '2', '3', '4', '5'])
+        info_dialog.addField('Participant ID:')
+        info_dialog.addField('Age:')
+        info_dialog.addField('Gender:', choices=['Male', 'Female'])
+        info_dialog.addField('Session:', choices=['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'])
+        info_dialog.addField('Position:', choices=['1', '2', '3', '4', '5'])
         info_dialog.show()
         if info_dialog.OK:
             return {
@@ -518,9 +518,9 @@ def main(args):
     save_dir = './data'
 
     # experiment setup
-    num_repetitions = 7
-    gesture_duration = 5
-    rest_duration = 3
+    num_repetitions = 2
+    gesture_duration = 2
+    rest_duration = 2
     record = True
 
     # Leap

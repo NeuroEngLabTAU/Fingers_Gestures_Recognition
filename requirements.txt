@@ -10,5 +10,7 @@ opencv-python==4.5.5.64
 build==0.9.0
 pyedflib==0.1.37
 scikit-learn==1.0.2
-psychopy-sounddevice==0.4.1  (Commented out if unavailable)
--e finger_pose_estimation/data_aquisition/Leap/leapc-python-api
+psychopy-sounddevice
+mne==0.24.1  
+-e ./finger_pose_estimation/data_aquisition/Leap/leapc-cffi
+-e ./finger_pose_estimation/data_aquisition/Leap/leapc-python-api
