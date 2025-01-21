@@ -101,10 +101,10 @@ class Experiment:
             i: self.num_repetitions for i in self.gestures.keys()
         }
         self.images = list(self.gestures.keys())
-        # choose a random gesture to start with
-        start_gesture_index = random.randint(0, len(self.images)-1)
-        self.current_image = self.images[start_gesture_index]
-        self.num_completed[self.current_image] -= 1
+        # choose a random gesture to start with todo previous one
+        # start_gesture_index = random.randint(0, len(self.images)-1)
+        # self.current_image = self.images[start_gesture_index]
+        # self.num_completed[self.current_image] -= 1
 
     def collect_participant_info(self):
         info_dialog = gui.Dlg(title='Participant Information')
@@ -113,6 +113,7 @@ class Experiment:
         info_dialog.addField('Gender:', choices=['Male', 'Female'])
         info_dialog.addField('Session:', choices=['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'])
         info_dialog.addField('Position:', choices=['1', '2', '3', '4', '5'])
+        info_dialog.addField('Display Mode:', choices=['Shuffled', 'Dynamic'])
         info_dialog.show()
         if info_dialog.OK:
             return {
@@ -120,7 +121,8 @@ class Experiment:
                 'Age': info_dialog.data["Age:"],
                 'Gender': info_dialog.data["Gender:"],
                 'session': info_dialog.data["Session:"],
-                'position': info_dialog.data["Position:"]
+                'position': info_dialog.data["Position:"],
+                'Display_Mode': info_dialog.data["Display Mode:"]
             }
         else:
             core.quit()
@@ -258,9 +260,14 @@ class Experiment:
         if len(self.images) == 0:
             return False
         else:
-            # Choose a random gesture that has not been completed enough times
-            # self.current_gesture_index = random.randint(0, len(self.gesture_images)-1)
-            self.current_image = random.choice(self.images)
+            if self.exp_info['Display_Mode'] == 'Shuffled':
+                # Choose a random gesture that has not been completed enough times
+                self.current_image = random.choice(self.images)
+            else:  # Sequential mode
+                # Choose the next gesture in the sequence
+                self.current_image = self.images[0]
+
+
             self.num_completed[self.current_image] -= 1
             # Remove the gesture if it has been completed enough times
             if self.num_completed[self.current_image] == 0:
@@ -279,71 +286,73 @@ class Experiment:
         elif verbose:
             print(f'TRIGGER: {msg}')
 
+    #
+    # def do_experiment(self):
+    #
+    #     self._init_window()
+    #
+    #     print(f"running process experiment with {len(self.images)} gestures")
+    #
+    #     # show instructions
+    #     self.instructions_text.draw()
+    #
+    #     self.window.flip()
+    #     event.waitKeys(keyList=['space'])
+    #
+    #     # self.show_countdown(self.rest_duration)  # Display countdown for 5 seconds
+    #
+    #     self.running = True
+    #     if (self.record):
+    #         self.exp_info['date'] = data.getDateStr()  # add a simple timestamp
+    #         self.exp_info['expName'] = 'fpe - real time'
+    #         self.exp_info['psychopyVersion'] = '2023.2.3'
+    #
+    #         self.data_dir = Path(self.data_dir, self.exp_info['Participant'].rjust(3, '0'), f"S{self.exp_info['session']}")
+    #         self.data_dir.mkdir(parents=True, exist_ok=True)
+    #
+    #         with open(Path(self.data_dir, "log.txt"), 'w') as f:
+    #             f.write(f"{self.exp_info}\n")
+    #         # start recording
+    #         self.emg_data.save_as = str(Path(self.data_dir, f"fpe_pos{self.exp_info['position']}_{self.exp_info['Participant'].rjust(3, '0')}_S{self.exp_info['session']}_rep{self.exp_num}_BT.edf"))
+    #         self.leap_data.save_as = str(Path(self.data_dir, f"fpe_pos{self.exp_info['position']}_{self.exp_info['Participant'].rjust(3, '0')}_S{self.exp_info['session']}_rep{self.exp_num}_BT.csv"))
+    #         print(f"Saving data to: {self.emg_data.save_as}")
+    #
+    #         self.emg_data.start()
+    #         self.leap_data.start()
+    #
+    #     while self.running:
+    #         keys = event.getKeys()
+    #         if self.quit_key in keys:
+    #             self.stop_experiment()
+    #             break
+    #         elif 'space' in keys:
+    #             self.pause_experiment()
+    #             continue
+    #         if not self.update_gesture():#todo return it this is the previous one
+    #             break
+    #         self.show_countdown(self.rest_duration)
+    #
+    #         self.show_gesture()
+    #         if self.record:
+    #             self.trigger(f'end_{self.current_image}')
+    #         # self.do_transition()
+    #         # if not self.update_gesture():#todo return it this is the previous one
+    #         #     break
+    #
+    #     if self.record:
+    #         self.trigger('end_experiment')
+    #         self.emg_data.stop()
+    #         self.leap_data.stop()
+    #
+    #         self.emg_data.join()
+    #         self.leap_data.join()
+    #
+    #     self.exp_end_text.draw()
+    #     self.window.flip()
+    #     core.wait(3)
+    #
+    #     self.window.close()
 
-    def do_experiment(self):
-
-        self._init_window()
-
-        print(f"running experiment with {len(self.images)} gestures")
-
-        # show instructions
-        self.instructions_text.draw()
-
-        self.window.flip()
-        event.waitKeys(keyList=['space'])
-
-        self.show_countdown(self.rest_duration)  # Display countdown for 5 seconds
-
-        self.running = True
-        if (self.record):
-            self.exp_info['date'] = data.getDateStr()  # add a simple timestamp
-            self.exp_info['expName'] = 'fpe - real time'
-            self.exp_info['psychopyVersion'] = '2023.2.3'
-
-            self.data_dir = Path(self.data_dir, self.exp_info['Participant'].rjust(3, '0'), f"S{self.exp_info['session']}")
-            self.data_dir.mkdir(parents=True, exist_ok=True)
-
-            with open(Path(self.data_dir, "log.txt"), 'w') as f:
-                f.write(f"{self.exp_info}\n")
-            # start recording
-            self.emg_data.save_as = str(Path(self.data_dir, f"fpe_pos{self.exp_info['position']}_{self.exp_info['Participant'].rjust(3, '0')}_S{self.exp_info['session']}_rep{self.exp_num}_BT.edf"))
-            self.leap_data.save_as = str(Path(self.data_dir, f"fpe_pos{self.exp_info['position']}_{self.exp_info['Participant'].rjust(3, '0')}_S{self.exp_info['session']}_rep{self.exp_num}_BT.csv"))
-            print(f"Saving data to: {self.emg_data.save_as}")
-            
-            self.emg_data.start()
-            self.leap_data.start()
-
-        while self.running:
-            keys = event.getKeys()
-            if self.quit_key in keys:
-                self.stop_experiment()
-                break
-            elif 'space' in keys:
-                self.pause_experiment()
-                continue
-            
-            self.show_gesture()
-            if self.record:
-                self.trigger(f'end_{self.current_image}')   
-            self.show_countdown(self.rest_duration)  
-            # self.do_transition()  
-            if not self.update_gesture():
-                break
-        
-        if self.record:
-            self.trigger('end_experiment')
-            self.emg_data.stop()
-            self.leap_data.stop()
-
-            self.emg_data.join()
-            self.leap_data.join()
-
-        self.exp_end_text.draw()
-        self.window.flip()
-        core.wait(3)
-
-        self.window.close()
-    
     def do_visualise(self):
 
          # Visualize data stream in main thread:
@@ -434,12 +443,16 @@ class Experiment:
             with open(Path(self.data_dir, "log.json"), 'w') as f:
                 json.dump(self.exp_info, f)
 
+                # start recording
+                self.emg_data.data_dir = self.data_dir
+                suffix_str = "shuffled" if self.exp_info['Display_Mode'] == 'Shuffled' else "dynamic"
+                self.emg_data.save_as = str(Path(self.data_dir,
+                                                 f"fpe_pos{self.exp_info['position']}_{self.exp_info['Participant'].rjust(3, '0')}_S{self.exp_info['session']}_rep{self.exp_num}_BT_{suffix_str}.edf"))
+                self.emg_data.leap_path = str(Path(self.data_dir,
+                                                   f"fpe_pos{self.exp_info['position']}_{self.exp_info['Participant'].rjust(3, '0')}_S{self.exp_info['session']}_rep{self.exp_num}_BT_{suffix_str}.csv"))
+                self.leap_data.save_as = str(Path(self.data_dir,
+                                                  f"fpe_pos{self.exp_info['position']}_{self.exp_info['Participant'].rjust(3, '0')}_S{self.exp_info['session']}_rep{self.exp_num}_BT_{suffix_str}_full.csv"))
 
-            # start recording
-            self.emg_data.data_dir = self.data_dir
-            self.emg_data.save_as = str(Path(self.data_dir, f"fpe_pos{self.exp_info['position']}_{self.exp_info['Participant'].rjust(3, '0')}_S{self.exp_info['session']}_rep{self.exp_num}_BT.edf"))
-            self.emg_data.leap_path = str(Path(self.data_dir, f"fpe_pos{self.exp_info['position']}_{self.exp_info['Participant'].rjust(3, '0')}_S{self.exp_info['session']}_rep{self.exp_num}_BT.csv"))
-            self.leap_data.save_as = str(Path(self.data_dir, f"fpe_pos{self.exp_info['position']}_{self.exp_info['Participant'].rjust(3, '0')}_S{self.exp_info['session']}_rep{self.exp_num}_BT_full.csv"))
 
             if self.video_flag:
                 saving_path = self.data_dir  # Define your saving path here
@@ -467,14 +480,15 @@ class Experiment:
             elif 'space' in keys:
                 self.pause_experiment()
                 continue
-
-            self.show_countdown(self.rest_duration)  # Display countdown for 5 seconds
-            self.show_gesture()
-            # self.show_countdown(self.rest_duration)
-            # self.do_transition()  
             if not self.update_gesture():
                 break
-        
+            self.show_countdown(self.rest_duration)  # Display countdown for 5 seconds
+            self.show_gesture()
+            # self.show_countdown(self.rest_gfgfduration)
+            # self.do_transition()
+            # if not self.update_gesture():
+            #     break
+
         if self.record:
             self.trigger('end_experiment')
             self.emg_data.stop()
@@ -490,22 +504,22 @@ class Experiment:
         self.window.close()
         
         print("terminated")
-        
-    def start_processes(self, emg_data, leap_data):
 
-        self.emg_data = emg_data
-        self.leap_data = leap_data
-        
-
-        vis_process = Process(target=self.do_visualise)
-        vis_process.start()
-
-        exp_process = Process(target=self.do_experiment)
-        exp_process.start()
-
-
-        exp_process.join()
-        vis_process.join()
+    # def start_processes(self, emg_data, leap_data):
+    #
+    #     self.emg_data = emg_data
+    #     self.leap_data = leap_data
+    #
+    #
+    #     vis_process = Process(target=self.do_visualise)
+    #     vis_process.start()
+    #
+    #     exp_process = Process(target=self.do_experiment)
+    #     exp_process.start()
+    #
+    #
+    #     exp_process.join()
+    #     vis_process.join()
 
 
 def main(args):
